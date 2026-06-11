@@ -173,10 +173,10 @@ class TambahCatatanPage extends StatefulWidget {
   const TambahCatatanPage({super.key, this.catatan});
 
   @override
-  State<TambahCatatanPage> createState() => _TambahCatatanPageState();
+  State<TambahCatatanPage> createState
+  class _TambahCatatanPag() => _TambahCatatanPageState();
 }
-
-class _TambahCatatanPageState extends State<TambahCatatanPage> {
+eState extends State<TambahCatatanPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _judulCtrl;
   late TextEditingController _isiCtrl;
