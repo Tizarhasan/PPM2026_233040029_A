@@ -213,13 +213,15 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.note_add_outlined),
-            title: const Text('Upload Pengalaman'),
+            leading: const Icon(Icons.edit_note_outlined),
+            title: const Text('Edit Pengalaman'),
             onTap: () async {
               Navigator.pop(context);
               final result = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditExperiencePage(experience: experience)),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        EditExperiencePage(experience: experience)),
               );
               if (result != null && result is ExperienceData) {
                 setState(() => experience = result);
@@ -269,12 +271,14 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Icon(icon, color: const Color(0xFF5451D6)),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              Text(content, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(content, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+              ],
+            ),
           ),
         ],
       ),
@@ -362,12 +366,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: _buildImage(experience.imagePath, width: 50, height: 50),
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(experience.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(experience.description, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(experience.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(experience.description, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -393,6 +399,9 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameCtrl;
   late TextEditingController _bioCtrl;
+  late TextEditingController _eduCtrl;
+  late TextEditingController _locCtrl;
+  late TextEditingController _contactCtrl;
   String? _imagePath;
 
   @override
@@ -400,7 +409,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.profile.name);
     _bioCtrl = TextEditingController(text: widget.profile.bio);
+    _eduCtrl = TextEditingController(text: widget.profile.education);
+    _locCtrl = TextEditingController(text: widget.profile.location);
+    _contactCtrl = TextEditingController(text: widget.profile.contact);
     _imagePath = widget.profile.imagePath;
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _bioCtrl.dispose();
+    _eduCtrl.dispose();
+    _locCtrl.dispose();
+    _contactCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImage() async {
@@ -464,6 +486,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             _buildTextField(_nameCtrl, 'Nama Lengkap *', Icons.person_outline),
             const SizedBox(height: 16),
             _buildTextField(_bioCtrl, 'Bio / Tentang', Icons.info_outline, maxLines: 3),
+            const SizedBox(height: 16),
+            _buildTextField(_eduCtrl, 'Pendidikan', Icons.school_outlined),
+            const SizedBox(height: 16),
+            _buildTextField(_locCtrl, 'Lokasi', Icons.location_on_outlined),
+            const SizedBox(height: 16),
+            _buildTextField(_contactCtrl, 'Kontak', Icons.email_outlined),
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
@@ -487,16 +515,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   ImageProvider _imageProvider() {
     if (_imagePath == null || _imagePath!.isEmpty) return const NetworkImage('https://via.placeholder.com/150');
-    if (_imagePath!.startsWith('http')) return NetworkImage(_imagePath!);
+    if (_imagePath!.startsWith('http') || _imagePath!.startsWith('blob:')) return NetworkImage(_imagePath!);
     return kIsWeb ? const NetworkImage('https://via.placeholder.com/150') : FileImage(File(_imagePath!));
   }
 
   ProfileData _getUpdatedData() => ProfileData(
         name: _nameCtrl.text,
         bio: _bioCtrl.text,
-        education: widget.profile.education,
-        location: widget.profile.location,
-        contact: widget.profile.contact,
+        education: _eduCtrl.text,
+        location: _locCtrl.text,
+        contact: _contactCtrl.text,
         imagePath: _imagePath,
       );
 
@@ -538,6 +566,13 @@ class _EditExperiencePageState extends State<EditExperiencePage> {
     _titleCtrl = TextEditingController(text: widget.experience.title);
     _descCtrl = TextEditingController(text: widget.experience.description);
     _imagePath = widget.experience.imagePath;
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _pickImage() async {
@@ -618,7 +653,8 @@ class _EditExperiencePageState extends State<EditExperiencePage> {
   }
 
   Widget _imageWidget() {
-    if (_imagePath!.startsWith('http')) return Image.network(_imagePath!, fit: BoxFit.cover);
+    if (_imagePath == null || _imagePath!.isEmpty) return const Icon(Icons.image);
+    if (_imagePath!.startsWith('http') || _imagePath!.startsWith('blob:')) return Image.network(_imagePath!, fit: BoxFit.cover);
     return kIsWeb ? Image.network('https://via.placeholder.com/150', fit: BoxFit.cover) : Image.file(File(_imagePath!), fit: BoxFit.cover);
   }
 
